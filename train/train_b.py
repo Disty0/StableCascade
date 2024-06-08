@@ -43,7 +43,7 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
 
         # MODEL VERSION
         model_version: str = EXPECTED  # 3BB or 700M
-        clip_text_model_name: str = 'laion/CLIP-ViT-bigG-14-laion2B-39B-b160k'
+        clip_text_model_name: str = 'Disty0/sotediffusion-wuerstchen3_text_encoder'
 
         # CHECKPOINT PATHS
         stage_a_checkpoint_path: str = EXPECTED
