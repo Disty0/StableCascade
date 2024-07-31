@@ -344,23 +344,21 @@ class TrainingCore(DataCore, WarpCore):
             latents = self.encode_latents(batch, models, extras)
             noised, _, _, logSNR, noise_cond, _ = extras.gdf.diffuse(latents, shift=1, loss_shift=1)
 
-            with torch.cuda.amp.autocast(dtype=torch.bfloat16):
-                pred = models.generator(noised, noise_cond, **conditions)
-                pred = extras.gdf.undiffuse(noised, logSNR, pred)[0]
+            pred = models.generator(noised, noise_cond, **conditions)
+            pred = extras.gdf.undiffuse(noised, logSNR, pred)[0]
 
-            with torch.cuda.amp.autocast(dtype=torch.bfloat16):
-                *_, (sampled, _, _) = extras.gdf.sample(
-                    models.generator, conditions,
+            *_, (sampled, _, _) = extras.gdf.sample(
+                models.generator, conditions,
+                latents.shape, unconditions, device=self.device, **extras.sampling_configs
+            )
+
+            if models.generator_ema is not None:
+                *_, (sampled_ema, _, _) = extras.gdf.sample(
+                    models.generator_ema, conditions,
                     latents.shape, unconditions, device=self.device, **extras.sampling_configs
                 )
-
-                if models.generator_ema is not None:
-                    *_, (sampled_ema, _, _) = extras.gdf.sample(
-                        models.generator_ema, conditions,
-                        latents.shape, unconditions, device=self.device, **extras.sampling_configs
-                    )
-                else:
-                    sampled_ema = sampled
+            else:
+                sampled_ema = sampled
 
             if self.is_main_node:
                 noised_images = torch.cat(
