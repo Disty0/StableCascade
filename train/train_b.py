@@ -1,4 +1,5 @@
 import torch
+torch.backends.cuda.matmul.allow_tf32 = True
 import torchvision
 from torch import nn, optim
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
